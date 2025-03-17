@@ -12,7 +12,7 @@
 
 //eeprom Version code, enables default settings instead of 0 init on update
 #define EEPVER 22
-#define EEPSIZE 2560  //Maximum is 4096
+#define EEPSIZE 2564  //Maximum is 4096
 //0 -> old version, default
 //1 -> 0.4p 1711272 and up
 //2 -> 0.4p 1711302 and up
