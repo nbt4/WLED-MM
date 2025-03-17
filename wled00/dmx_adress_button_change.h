@@ -9,6 +9,7 @@ const uint32_t DIO = 5;
 const uint32_t BTN_UP = 19;
 const uint32_t BTN_DOWN = 32;
 const uint32_t BTN_SAVE = 17;
+const uint32_t BTN_CH_MODE = 33;
 const uint32_t PRESSED_TIME = 20;
 const uint32_t DMX_MAX = 512;
 
@@ -18,6 +19,8 @@ int curstate_btn_down = HIGH;
 int laststate_btn_down = HIGH;
 int curstate_btn_save = HIGH;
 int laststate_btn_save = HIGH;
+int curstate_btn_ch_mode = HIGH;
+int laststate_btn_ch_mode = HIGH;
 int count_up = 0;
 int count_down = 0;
 int lastTime = 1000;
@@ -33,6 +36,20 @@ const uint8_t save[] = {
   SEG_A | SEG_F | SEG_G | SEG_E | SEG_D           // E
 };
 
+const uint8_t srgb[] = {
+  SEG_F | SEG_G | SEG_B | SEG_C,                  // 4 mit Punkt (Digit 1)
+  SEG_G,                                          // - (Digit 2)
+  SEG_A | SEG_F | SEG_E | SEG_D,                  // C (Digit 3)
+  SEG_B | SEG_C | SEG_E | SEG_F | SEG_G           // H (Digit 4)
+};
+
+const uint8_t m_rgb[] = {
+  SEG_C | SEG_E | SEG_G,                          // M mit Punkt (Digit 1)
+  SEG_E | SEG_G,                                  // R (Digit 2)
+  SEG_A | SEG_B | SEG_G | SEG_F | SEG_C | SEG_D,  // G (Digit 3)
+  SEG_C | SEG_D | SEG_E | SEG_F | SEG_G           // B (Digit 4)
+};
+
 
 
 
@@ -46,11 +63,12 @@ class DmxAdressButtonChange : public Usermod {
     void setup() {
       
       // DMXAddress = 1;
-      // Serial.begin(115200);
+      Serial.begin(115200);
       display.setBrightness(7);
       pinMode(BTN_UP, INPUT_PULLUP);
       pinMode(BTN_DOWN, INPUT_PULLUP);
       pinMode(BTN_SAVE, INPUT_PULLUP);
+      pinMode(BTN_CH_MODE, INPUT_PULLUP);
       
       // EEPROM.begin(2554);
       // byte b0 = EEPROM.read(2551);
@@ -77,12 +95,25 @@ class DmxAdressButtonChange : public Usermod {
         return;
     
       }
+
+      if(curstate_btn_ch_mode == LOW) {
+
+        curstate_btn_ch_mode = digitalRead(BTN_CH_MODE);
+        return;
+    
+      }
     
       curstate_btn_up = digitalRead(BTN_UP);
       curstate_btn_down = digitalRead(BTN_DOWN);
       curstate_btn_save = digitalRead(BTN_SAVE);
+      curstate_btn_ch_mode = digitalRead(BTN_CH_MODE);
       display.showNumberDec(DMXAddress);
     
+      if(curstate_btn_ch_mode == LOW && laststate_btn_ch_mode == HIGH) {
+        chDmxMode();
+        Serial.println("DMX-Mode is set to: " + DMXMode);
+      }
+      
       if(curstate_btn_up == HIGH && laststate_btn_up == LOW) {
         incDmxAddress();
       }
@@ -132,6 +163,7 @@ class DmxAdressButtonChange : public Usermod {
       }
     
       laststate_btn_save = curstate_btn_save;
+      laststate_btn_ch_mode = curstate_btn_ch_mode;
 
     }
 
@@ -143,6 +175,17 @@ class DmxAdressButtonChange : public Usermod {
     void decDmxAddress() {
       DMXAddress = (DMXAddress + DMX_MAX - 2) % DMX_MAX + 1;
       Serial.println("DMX-Address is set to: " + DMXAddress);
+    }
+
+    void chDmxMode() {
+      if(DMXMode == DMX_MODE_SINGLE_RGB){
+        DMXMode = DMX_MODE_MULTIPLE_RGBW;
+        display.setSegments(m_rgb);
+      }
+      else{
+        DMXMode = DMX_MODE_SINGLE_RGB;
+        display.setSegments(srgb);
+      }
     }
 
 };
