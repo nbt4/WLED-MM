@@ -1,6 +1,7 @@
 #pragma once
 
 #include "wled.h"
+#include "fcn_declare.h"
 #include <TM1637Display.h>
 #include <EEPROM.h>
 
@@ -24,6 +25,7 @@ int laststate_btn_ch_mode = HIGH;
 int count_up = 0;
 int count_down = 0;
 int lastTime = 1000;
+int cur_preset = 0;
 
 
 
@@ -186,6 +188,20 @@ class DmxAdressButtonChange : public Usermod {
         DMXMode = DMX_MODE_SINGLE_RGB;
         display.setSegments(srgb);
       }
+    }
+
+    void cyclePresets() {
+        String s = String();
+        cur_preset += 1;
+        if (!getPresetName(cur_preset, s)) {
+            cur_preset = 1;
+            if (!getPresetName(1, s)) {
+                return;
+            }
+        }
+
+        applyPreset(cur_preset);
+        handlePresets();
     }
 
 };
