@@ -2,8 +2,13 @@
 
 #include "wled.h"
 #include "fcn_declare.h"
-#include <TM1637Display.h>
-#include <EEPROM.h>
+
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
 
 const uint32_t CLK = 18;
 const uint32_t DIO = 5;
@@ -14,194 +19,236 @@ const uint32_t BTN_CH_MODE = 33;
 const uint32_t PRESSED_TIME = 20;
 const uint32_t DMX_MAX = 512;
 
+const uint32_t NUM_MODES = 4;
+
+enum Mode {
+  SELECT_MODE,
+  DMX_ADRESS,
+  DMX_MODE,
+  PRESET
+};
+
+String modeString(int mode) {
+  switch(mode) {
+    case SELECT_MODE:
+      return String("Select mode");
+    case DMX_ADRESS:
+      return String("DMX Adress");
+    case DMX_MODE:
+      return String("DMX Mode");
+    case PRESET:
+      return String("Preset");
+  }
+  return String("");
+}
+
+const uint32_t NUM_DMX_MODES = 2;
+
+enum DmxMode {
+  SINGLE_RGB,
+  MULTIPLE_RGBW
+};
+
+String dmxModeString(int mode) {
+  switch (mode) {
+    case SINGLE_RGB:
+      return String("Single RGB");
+    case MULTIPLE_RGBW:
+      return String("Multiple RGBW");
+  }
+}
+
 int curstate_btn_up = HIGH;
 int laststate_btn_up = HIGH;
 int curstate_btn_down = HIGH;
 int laststate_btn_down = HIGH;
 int curstate_btn_save = HIGH;
 int laststate_btn_save = HIGH;
-int curstate_btn_ch_mode = HIGH;
-int laststate_btn_ch_mode = HIGH;
-int count_up = 0;
-int count_down = 0;
-int lastTime = 1000;
-int cur_preset = 0;
+int curstate_btn_mode = HIGH;
+int laststate_btn_mode = HIGH;
 
+int mode = SELECT_MODE;
+int selected = 1;
 
-
-TM1637Display display(CLK, DIO);
-
-const uint8_t save[] = {
-  SEG_A | SEG_F | SEG_G | SEG_C | SEG_D,          // S
-  SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G,  // A
-  SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,          // V
-  SEG_A | SEG_F | SEG_G | SEG_E | SEG_D           // E
-};
-
-const uint8_t srgb[] = {
-  SEG_F | SEG_G | SEG_B | SEG_C,                  // 4 mit Punkt (Digit 1)
-  SEG_G,                                          // - (Digit 2)
-  SEG_A | SEG_F | SEG_E | SEG_D,                  // C (Digit 3)
-  SEG_B | SEG_C | SEG_E | SEG_F | SEG_G           // H (Digit 4)
-};
-
-const uint8_t m_rgb[] = {
-  SEG_C | SEG_E | SEG_G,                          // M mit Punkt (Digit 1)
-  SEG_E | SEG_G,                                  // R (Digit 2)
-  SEG_A | SEG_B | SEG_G | SEG_F | SEG_C | SEG_D,  // G (Digit 3)
-  SEG_C | SEG_D | SEG_E | SEG_F | SEG_G           // B (Digit 4)
-};
-
-
-
+Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 class DmxAdressButtonChange : public Usermod {
-  private:
+private:
 
-  public:
+public:
 
   DmxAdressButtonChange(const char *name, bool enabled): Usermod(name, enabled) {}
 
-    void setup() {
-      
-      // DMXAddress = 1;
-      Serial.begin(115200);
-      display.setBrightness(7);
-      pinMode(BTN_UP, INPUT_PULLUP);
-      pinMode(BTN_DOWN, INPUT_PULLUP);
-      pinMode(BTN_SAVE, INPUT_PULLUP);
-      pinMode(BTN_CH_MODE, INPUT_PULLUP);
-      
-      // EEPROM.begin(2554);
-      // byte b0 = EEPROM.read(2551);
-      // byte b1 = EEPROM.read(2552);
-      // byte b2 = EEPROM.read(2553);
-      // byte b3 = EEPROM.read(2554);
+  void setup() {
+    Serial.begin(115200);
 
-      // DMXAddress |= b0;
-      // DMXAddress |= b1 << 8;
-      // DMXAddress |= b2 << 16;
-      // DMXAddress |= b3 << 24;
-      
-      // if(DMXAddress > DMX_MAX) {
-      //   DMXAddress = 1;
-      // }
-
+    if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+      Serial.println("failed to start SSD1306 OLED");
+      while (1);
     }
 
-    void loop() {
+    delay(2000);
 
-      if(curstate_btn_save == LOW) {
+    pinMode(BTN_UP, INPUT_PULLUP);
+    pinMode(BTN_DOWN, INPUT_PULLUP);
+    pinMode(BTN_SAVE, INPUT_PULLUP);
+    pinMode(BTN_CH_MODE, INPUT_PULLUP);
+  }
 
-        curstate_btn_save = digitalRead(BTN_SAVE);
-        return;
-    
-      }
+  void loop() {
+    curstate_btn_up = digitalRead(BTN_UP);
+    curstate_btn_down = digitalRead(BTN_DOWN);
+    curstate_btn_save = digitalRead(BTN_SAVE);
+    curstate_btn_mode = digitalRead(BTN_CH_MODE);
 
-      if(curstate_btn_ch_mode == LOW) {
+    if (curstate_btn_up == LOW && laststate_btn_up == HIGH) {
+      btnUpPressed();
+    }
+    if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
+      btnDownPressed();
+    }
+    if (curstate_btn_save == LOW && laststate_btn_save == HIGH) {
+      btnSavePressed();
+    }
+    if (curstate_btn_mode == LOW && laststate_btn_mode == HIGH) {
+      btnModePressed();
+    }
 
-        curstate_btn_ch_mode = digitalRead(BTN_CH_MODE);
-        return;
-    
-      }
-    
-      curstate_btn_up = digitalRead(BTN_UP);
-      curstate_btn_down = digitalRead(BTN_DOWN);
-      curstate_btn_save = digitalRead(BTN_SAVE);
-      curstate_btn_ch_mode = digitalRead(BTN_CH_MODE);
-      display.showNumberDec(DMXAddress);
-    
-      if(curstate_btn_ch_mode == LOW && laststate_btn_ch_mode == HIGH) {
-        chDmxMode();
-        Serial.println("DMX-Mode is set to: " + DMXMode);
-      }
-      
-      if(curstate_btn_up == HIGH && laststate_btn_up == LOW) {
-        incDmxAddress();
-      }
-    
-      if(curstate_btn_down == HIGH && laststate_btn_down == LOW) {
-        decDmxAddress();
-      }
-    
-      if(curstate_btn_up == LOW) {
-        if(count_up > PRESSED_TIME) {
-    
-          incDmxAddress();
-    
+    drawScreen();
+
+    laststate_btn_up = curstate_btn_up;
+    laststate_btn_down = curstate_btn_down;
+    laststate_btn_save = curstate_btn_save;
+    laststate_btn_mode = curstate_btn_mode;
+  }
+
+  void btnUpPressed() {
+    switch(mode) {
+      case SELECT_MODE:
+        selected -= 1;
+        if selected <= 0 {
+          selected = NUM_MODES - 1;
         }
-        count_up += 1;
-    
-      } else {
-    
-        count_up = 0;
-    
-      }
-    
-      if(curstate_btn_down == LOW) {
-        if(count_down > PRESSED_TIME) {
-    
-          decDmxAddress();
-    
+        break;
+      case DMX_ADRESS:
+        decDmxAdress();
+        break;
+      case DMX_MODE:
+        selected = (selected + NUM_DMX_MODES - 1) % NUM_DMX_MODES;
+        break;
+      case PRESET:
+        if (selected > 0) {
+          selected -= 1;
+        } else {
+          String s = String();
+          do {
+            selected += 1;
+          } while (getPresetName(selected, s));
+          selected -= 1;
         }
-        count_down += 1;
-    
-      }else {
-        count_down = 0;
-      }
-    
-    
-      laststate_btn_up = curstate_btn_up;
-      laststate_btn_down = curstate_btn_down;
-      // Serial.println(curstate);
-    
-      if(curstate_btn_save == LOW && laststate_btn_save == HIGH) {
-
-        serializeConfig();
-
-        display.setSegments(save);
-        Serial.println("DMX-Address is saved: " + DMXAddress);
-    
-      }
-    
-      laststate_btn_save = curstate_btn_save;
-      laststate_btn_ch_mode = curstate_btn_ch_mode;
-
+        break;
     }
+  }
 
-    void incDmxAddress() {
-      DMXAddress = (DMXAddress % DMX_MAX) + 1;
-      Serial.println("DMX-Address is set to: " + DMXAddress);
-    }
-
-    void decDmxAddress() {
-      DMXAddress = (DMXAddress + DMX_MAX - 2) % DMX_MAX + 1;
-      Serial.println("DMX-Address is set to: " + DMXAddress);
-    }
-
-    void chDmxMode() {
-      if(DMXMode == DMX_MODE_SINGLE_RGB){
-        DMXMode = DMX_MODE_MULTIPLE_RGBW;
-        display.setSegments(m_rgb);
-      }
-      else{
-        DMXMode = DMX_MODE_SINGLE_RGB;
-        display.setSegments(srgb);
-      }
-    }
-
-    void cyclePresets() {
+  void btnDownPressed() {
+    switch (mode) {
+      case SELECT_MODE:
+        selected += 1;
+        if (selected >= NUM_MODES) {
+          selected = 1;
+        }
+        break;
+      case DMX_ADRESS:
+        decDmxAdress();
+        break;
+      case DMX_MODE:
+        selected = (selected + 1) % NUM_DMX_MODES;
+        break;
+      case PRESET:
+        selected += 1;
         String s = String();
-        cur_preset += 1;
-        if (!getPresetName(cur_preset, s)) {
-            cur_preset = 1;
-            if (!getPresetName(1, s)) {
-                return;
-            }
+        if (!getPresetName(selected, s)) {
+          selected = 0;
         }
-
-        applyPreset(cur_preset);
-        handlePresets();
     }
+  }
 
+  void btnSavePressed() {
+    switch (mode) {
+      case SELECT_MODE:
+        mode = selected;
+        break;
+      case DMX_ADRESS:
+        saveDmxAddress();
+        break;
+      case DMX_MODE:
+        switch (selected) {
+          case SINGLE_RGB:
+            DMXMode = DMX_MODE_SINGLE_RGB;
+            break;
+          case MUTLIPLE_RGBW:
+            DMXMode = DMX_MODE_MULTIPLE_RGBW;
+            break;
+        }
+        mode = DMX_ADRESS;
+      case PRESET:
+        applyPreset(selected);
+        handlePresets();
+        break;
+    }
+  }
+
+  void btnModePressed() {
+    mode = SELECT_MODE;
+  }
+
+  void drawScreen() {
+    String header = modeString(mode);
+    switch(mode) {
+      case SELECT_MODE:
+        String s = modeString(selected);
+        drawOptionScreen(header, s);
+        break;
+      case DMX_ADRESS:
+        String s = String("") + DMXAdress;
+        drawOptionScreen(header, s);
+        break;
+      case DMX_MODE:
+        String s = dmxModeString(selected);
+        drawOptionScreen(header, s);
+        break;
+      case PRESET:
+        String s = String();
+        getPresetName(selected, s);
+        drawOptionScreen(header, s);
+        break;
+    }
+  }
+
+  void drawOptionScreen(String header, String option) {
+    oled.setTextSize(1);
+    oled.setCursor(0, 0);
+    oled.println(header);
+
+    oled.setTextSize(2);
+    oled.setCursor(10, 10);
+    oled.println(option);
+
+    oled.display();
+  }
+
+  void saveDmxAddress() {
+      serializeConfig();
+      Serial.println("DMX-Address is saved: " + DMXAddress);
+  }
+
+  void incDmxAddress() {
+    DMXAddress = (DMXAddress % DMX_MAX) + 1;
+    Serial.println("DMX-Address is set to: " + DMXAddress);
+  }
+
+  void decDmxAddress() {
+    DMXAddress = (DMXAddress + DMX_MAX - 2) % DMX_MAX + 1;
+    Serial.println("DMX-Address is set to: " + DMXAddress);
+  }
 };
