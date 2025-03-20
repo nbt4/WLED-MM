@@ -10,8 +10,8 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-const uint32_t CLK = 18;
-const uint32_t DIO = 5;
+// const uint32_t CLK = 18;
+// const uint32_t DIO = 5;
 const uint32_t BTN_UP = 19;
 const uint32_t BTN_DOWN = 32;
 const uint32_t BTN_SAVE = 17;
@@ -38,6 +38,7 @@ String modeString(int mode) {
       return String("DMX Mode");
     case PRESET:
       return String("Preset");
+    return String("");
   }
   return String("");
 }
@@ -88,6 +89,7 @@ public:
     }
 
     delay(2000);
+    oled.clearDisplay();
 
     pinMode(BTN_UP, INPUT_PULLUP);
     pinMode(BTN_DOWN, INPUT_PULLUP);
@@ -126,12 +128,12 @@ public:
     switch(mode) {
       case SELECT_MODE:
         selected -= 1;
-        if selected <= 0 {
+        if (selected <= 0) {
           selected = NUM_MODES - 1;
         }
         break;
       case DMX_ADRESS:
-        decDmxAdress();
+        decDmxAddress();
         break;
       case DMX_MODE:
         selected = (selected + NUM_DMX_MODES - 1) % NUM_DMX_MODES;
@@ -159,7 +161,7 @@ public:
         }
         break;
       case DMX_ADRESS:
-        decDmxAdress();
+        decDmxAddress();
         break;
       case DMX_MODE:
         selected = (selected + 1) % NUM_DMX_MODES;
@@ -186,7 +188,7 @@ public:
           case SINGLE_RGB:
             DMXMode = DMX_MODE_SINGLE_RGB;
             break;
-          case MUTLIPLE_RGBW:
+          case MULTIPLE_RGBW:
             DMXMode = DMX_MODE_MULTIPLE_RGBW;
             break;
         }
@@ -204,21 +206,22 @@ public:
 
   void drawScreen() {
     String header = modeString(mode);
+    String s;
     switch(mode) {
       case SELECT_MODE:
-        String s = modeString(selected);
+        s = modeString(selected);
         drawOptionScreen(header, s);
         break;
       case DMX_ADRESS:
-        String s = String("") + DMXAdress;
+        s = String("") + DMXAddress;
         drawOptionScreen(header, s);
         break;
       case DMX_MODE:
-        String s = dmxModeString(selected);
+        s = dmxModeString(selected);
         drawOptionScreen(header, s);
         break;
       case PRESET:
-        String s = String();
+        s = String();
         getPresetName(selected, s);
         drawOptionScreen(header, s);
         break;
