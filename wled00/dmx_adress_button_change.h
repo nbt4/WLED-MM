@@ -43,7 +43,7 @@ String modeString(int mode) {
 }
 
 enum DmxMode {
-  SINGLE_RGB,
+  SINGLE_RGB = 0,
   MULTIPLE_RGBW,
   NUM_DMX_MODES // has to be last variant
 };
@@ -211,6 +211,14 @@ public:
     switch (mode) {
       case SELECT_MODE:
         mode = selected;
+        switch (mode) {
+          case DMX_MODE:
+            selected = SINGLE_RGB;
+            break;
+          case PRESET:
+            selected = 1;
+            break;
+        }
         break;
       case DMX_ADRESS:
         saveDmxAddress();
