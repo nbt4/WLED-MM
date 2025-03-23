@@ -109,7 +109,7 @@ public:
 
     if (curstate_btn_up == LOW && laststate_btn_up == HIGH) {
       btnUpPressed();
-    } else if (curstate_btn_up == LOW) {
+    } else if (curstate_btn_up == HIGH) {
       if (repeat_count > REPEAT_TIME) {
         btnUpPressed();
       }
@@ -119,7 +119,7 @@ public:
     }
     if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
       btnDownPressed();
-    } else if (curstate_btn_up == LOW) {
+    } else if (curstate_btn_up == HIGH) {
       if (repeat_count > REPEAT_TIME) {
         btnDownPressed();
       }
