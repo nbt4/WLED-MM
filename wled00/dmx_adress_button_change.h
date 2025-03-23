@@ -167,7 +167,7 @@ public:
         selected = (selected + NUM_DMX_MODES - 1) % NUM_DMX_MODES;
         break;
       case PRESET:
-        if (selected > 0) {
+        if (selected > 1) {
           selected -= 1;
         } else {
           String s = String();
