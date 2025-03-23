@@ -114,6 +114,10 @@ public:
     if (curstate_btn_up == LOW) {
       if (repeat_count_up > REPEAT_TIME) {
         btnUpPressed();
+        oled.setTextSize(1);
+        oled.setCursor(40, 45);
+        String s = String("btnUpPressed");
+        oled.println(s);
       }
       repeat_count_up += 1;
     } else {
@@ -141,10 +145,6 @@ public:
     drawScreen();
 
 
-    oled.setTextSize(1);
-    oled.setCursor(40, 45);
-    String s = String() + repeat_count_up;
-    oled.println(s);
 
     if (save_msg > 0) {
       oled.setTextSize(1);
