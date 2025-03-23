@@ -53,7 +53,7 @@ String dmxModeString(int mode) {
     case SINGLE_RGB:
       return String("Single RGB");
     case MULTIPLE_RGBW:
-      return String("Multiple RGBW");
+      return String("Multiple\r\nRGBW");
   }
 }
 
@@ -113,7 +113,6 @@ public:
     }
     if (curstate_btn_save == LOW && laststate_btn_save == HIGH) {
       btnSavePressed();
-      save_msg = 100;
     }
     if (curstate_btn_mode == LOW && laststate_btn_mode == HIGH) {
       btnModePressed();
@@ -123,7 +122,7 @@ public:
 
     if (save_msg > 0) {
       oled.setTextSize(1);
-      oled.setCursor(0, 35);
+      oled.setCursor(0, 45);
       oled.println("saved");
       save_msg -= 1;
     }
@@ -194,6 +193,7 @@ public:
         break;
       case DMX_ADRESS:
         saveDmxAddress();
+        save_msg = 100;
         break;
       case DMX_MODE:
         switch (selected) {
@@ -205,9 +205,12 @@ public:
             break;
         }
         mode = DMX_ADRESS;
+        save_msg = 100;
+        break;
       case PRESET:
         applyPreset(selected);
         handlePresets();
+        save_msg = 100;
         break;
     }
   }
@@ -227,7 +230,7 @@ public:
         break;
       case DMX_ADRESS:
         s = String("") + DMXAddress;
-        drawOptionScreen(header, s);
+        drawOptionScreenBigCentered(header, s);
         break;
       case DMX_MODE:
         s = dmxModeString(selected);
@@ -248,6 +251,16 @@ public:
 
     oled.setTextSize(2);
     oled.setCursor(2, 20);
+    oled.println(option);
+  }
+
+  void drawOptionScreenBigCentered(String header, String option) {
+    oled.setTextSize(1);
+    oled.setCursor(0, 10);
+    oled.println(header);
+
+    oled.setTextSize(3);
+    oled.setCursor(30, 20);
     oled.println(option);
   }
 
