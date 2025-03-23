@@ -111,10 +111,6 @@ public:
     if (curstate_btn_up == LOW && laststate_btn_up == HIGH) {
       btnUpPressed();
     }
-    if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
-      btnDownPressed();
-    }
-
     if (curstate_btn_up == LOW) {
       if (repeat_count_up > REPEAT_TIME) {
         btnUpPressed();
@@ -123,7 +119,11 @@ public:
     } else {
       repeat_count_up = 0;
     }
-    if (curstate_btn_up == LOW) {
+
+    if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
+      btnDownPressed();
+    }
+    if (curstate_btn_down == LOW) {
       if (repeat_count_down > REPEAT_TIME) {
         btnDownPressed();
       }
@@ -140,12 +140,6 @@ public:
     }
 
     drawScreen();
-
-    oled.setTextSize(1);
-    oled.setCursor(40, 45);
-    String s = String() + repeat_count_up + String(" ") + repeat_count_down;
-    oled.println(s);
-
 
     if (save_msg > 0) {
       oled.setTextSize(1);
