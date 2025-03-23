@@ -92,6 +92,7 @@ public:
 
     delay(2000);
     oled.clearDisplay();
+    oled.setTextColor(WHITE);
 
     pinMode(BTN_UP, INPUT_PULLUP);
     pinMode(BTN_DOWN, INPUT_PULLUP);
@@ -105,24 +106,20 @@ public:
     curstate_btn_save = digitalRead(BTN_SAVE);
     curstate_btn_mode = digitalRead(BTN_CH_MODE);
 
-    // if (curstate_btn_up == LOW && laststate_btn_up == HIGH) {
-    //   btnUpPressed();
-    // }
-    // if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
-    //   btnDownPressed();
-    // }
-    // if (curstate_btn_save == LOW && laststate_btn_save == HIGH) {
-    //   btnSavePressed();
-    // }
-    // if (curstate_btn_mode == LOW && laststate_btn_mode == HIGH) {
-    //   btnModePressed();
-    // }
-    //
-    // drawScreen();
+    if (curstate_btn_up == LOW && laststate_btn_up == HIGH) {
+      btnUpPressed();
+    }
+    if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
+      btnDownPressed();
+    }
+    if (curstate_btn_save == LOW && laststate_btn_save == HIGH) {
+      btnSavePressed();
+    }
+    if (curstate_btn_mode == LOW && laststate_btn_mode == HIGH) {
+      btnModePressed();
+    }
 
-    oled.setCursor(0, 0);
-    String s = String("") + counter++;
-    oled.println(s);
+    drawScreen();
 
     laststate_btn_up = curstate_btn_up;
     laststate_btn_down = curstate_btn_down;
@@ -236,11 +233,11 @@ public:
 
   void drawOptionScreen(String header, String option) {
     oled.setTextSize(1);
-    oled.setCursor(0, 0);
+    oled.setCursor(0, 10);
     oled.println(header);
 
     oled.setTextSize(2);
-    oled.setCursor(10, 10);
+    oled.setCursor(10, 20);
     oled.println(option);
 
     oled.display();
