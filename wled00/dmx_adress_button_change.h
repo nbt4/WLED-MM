@@ -71,8 +71,6 @@ int laststate_btn_mode = HIGH;
 int mode = SELECT_MODE;
 int selected = 1;
 
-int counter = 0;
-
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 class DmxAdressButtonChange : public Usermod {
