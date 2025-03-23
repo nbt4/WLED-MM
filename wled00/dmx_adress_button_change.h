@@ -66,7 +66,8 @@ int laststate_btn_save = HIGH;
 int curstate_btn_mode = HIGH;
 int laststate_btn_mode = HIGH;
 
-int repeat_count = 0;
+int repeat_count_up = 0;
+int repeat_count_down = 0;
 
 int mode = SELECT_MODE;
 int selected = 1;
@@ -111,23 +112,23 @@ public:
       btnUpPressed();
     }
     if (curstate_btn_up == LOW) {
-      if (repeat_count > REPEAT_TIME) {
+      if (repeat_count_up > REPEAT_TIME) {
         btnUpPressed();
       }
-      repeat_count += 1;
+      repeat_count_up += 1;
     } else {
-      repeat_count = 0;
+      repeat_count_up = 0;
     }
     if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
       btnDownPressed();
     }
     if (curstate_btn_up == LOW) {
-      if (repeat_count > REPEAT_TIME) {
+      if (repeat_count_down > REPEAT_TIME) {
         btnDownPressed();
       }
-      repeat_count += 1;
+      repeat_count_down += 1;
     } else {
-      repeat_count = 0;
+      repeat_count_down = 0;
     }
 
     if (curstate_btn_save == LOW && laststate_btn_save == HIGH) {
