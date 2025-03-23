@@ -71,6 +71,8 @@ int laststate_btn_mode = HIGH;
 int mode = SELECT_MODE;
 int selected = 1;
 
+int counter = 0;
+
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 class DmxAdressButtonChange : public Usermod {
@@ -103,20 +105,24 @@ public:
     curstate_btn_save = digitalRead(BTN_SAVE);
     curstate_btn_mode = digitalRead(BTN_CH_MODE);
 
-    if (curstate_btn_up == LOW && laststate_btn_up == HIGH) {
-      btnUpPressed();
-    }
-    if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
-      btnDownPressed();
-    }
-    if (curstate_btn_save == LOW && laststate_btn_save == HIGH) {
-      btnSavePressed();
-    }
-    if (curstate_btn_mode == LOW && laststate_btn_mode == HIGH) {
-      btnModePressed();
-    }
+    // if (curstate_btn_up == LOW && laststate_btn_up == HIGH) {
+    //   btnUpPressed();
+    // }
+    // if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
+    //   btnDownPressed();
+    // }
+    // if (curstate_btn_save == LOW && laststate_btn_save == HIGH) {
+    //   btnSavePressed();
+    // }
+    // if (curstate_btn_mode == LOW && laststate_btn_mode == HIGH) {
+    //   btnModePressed();
+    // }
+    //
+    // drawScreen();
 
-    drawScreen();
+    oled.setCursor(0, 0);
+    String s = String("") + counter++;
+    oled.println(s);
 
     laststate_btn_up = curstate_btn_up;
     laststate_btn_down = curstate_btn_down;
