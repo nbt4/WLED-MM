@@ -114,6 +114,8 @@ public:
         btnUpPressed();
       }
       repeat_count += 1;
+    } else {
+      repeat_count = 0;
     }
     if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
       btnDownPressed();
@@ -122,7 +124,10 @@ public:
         btnDownPressed();
       }
       repeat_count += 1;
+    } else {
+      repeat_count = 0;
     }
+
     if (curstate_btn_save == LOW && laststate_btn_save == HIGH) {
       btnSavePressed();
     }
