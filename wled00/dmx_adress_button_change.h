@@ -112,6 +112,9 @@ public:
     }
     if (curstate_btn_save == LOW && laststate_btn_save == HIGH) {
       btnSavePressed();
+      oled.setCursor(0, 30);
+      oled.setTextSize(1);
+      oled.println("saved");
     }
     if (curstate_btn_mode == LOW && laststate_btn_mode == HIGH) {
       btnModePressed();
