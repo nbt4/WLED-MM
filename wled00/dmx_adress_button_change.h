@@ -201,7 +201,7 @@ public:
         selected += 1;
         String s = String();
         if (!getPresetName(selected, s)) {
-          selected = 0;
+          selected = 1;
         }
     }
   }
