@@ -116,7 +116,7 @@ public:
         btnUpPressed();
         oled.setTextSize(1);
         oled.setCursor(40, 45);
-        String s = String("btnUpPressed");
+        String s = modeString(mode);
         oled.println(s);
       }
       repeat_count_up += 1;
