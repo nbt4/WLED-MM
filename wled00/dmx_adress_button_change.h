@@ -19,13 +19,12 @@ const uint32_t BTN_CH_MODE = 33;
 const uint32_t PRESSED_TIME = 20;
 const uint32_t DMX_MAX = 512;
 
-const uint32_t NUM_MODES = 4;
-
 enum Mode {
-  SELECT_MODE,
+  SELECT_MODE = 0,
   DMX_ADRESS,
   DMX_MODE,
-  PRESET
+  PRESET,
+  NUM_MODES // has to be last variant
 };
 
 String modeString(int mode) {
@@ -43,11 +42,10 @@ String modeString(int mode) {
   return String("");
 }
 
-const uint32_t NUM_DMX_MODES = 2;
-
 enum DmxMode {
   SINGLE_RGB,
-  MULTIPLE_RGBW
+  MULTIPLE_RGBW,
+  NUM_DMX_MODES // has to be last variant
 };
 
 String dmxModeString(int mode) {
@@ -104,7 +102,10 @@ public:
     curstate_btn_save = digitalRead(BTN_SAVE);
     curstate_btn_mode = digitalRead(BTN_CH_MODE);
 
+    drawScreen();
+
     if (curstate_btn_up == LOW && laststate_btn_up == HIGH) {
+      oled.clearDisplay();
       btnUpPressed();
     }
     if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
@@ -116,8 +117,6 @@ public:
     if (curstate_btn_mode == LOW && laststate_btn_mode == HIGH) {
       btnModePressed();
     }
-
-    drawScreen();
 
     laststate_btn_up = curstate_btn_up;
     laststate_btn_down = curstate_btn_down;
