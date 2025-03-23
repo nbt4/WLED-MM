@@ -68,6 +68,7 @@ int laststate_btn_mode = HIGH;
 
 int mode = SELECT_MODE;
 int selected = 1;
+int save_msg = 0;
 
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
@@ -112,13 +113,22 @@ public:
     }
     if (curstate_btn_save == LOW && laststate_btn_save == HIGH) {
       btnSavePressed();
-      while (1);
+      save_msg = 100;
     }
     if (curstate_btn_mode == LOW && laststate_btn_mode == HIGH) {
       btnModePressed();
     }
 
     drawScreen();
+
+    if (save_msg > 0) {
+      oled.setTextSize(1);
+      oled.setCursor(0, 25);
+      oled.println("saved");
+      save_msg -= 1;
+    }
+
+    oled.display();
 
     laststate_btn_up = curstate_btn_up;
     laststate_btn_down = curstate_btn_down;
@@ -238,8 +248,6 @@ public:
     oled.setTextSize(2);
     oled.setCursor(2, 20);
     oled.println(option);
-
-    oled.display();
   }
 
   void saveDmxAddress() {
