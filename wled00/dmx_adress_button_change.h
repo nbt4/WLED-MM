@@ -234,7 +234,7 @@ public:
     oled.println(header);
 
     oled.setTextSize(2);
-    oled.setCursor(10, 20);
+    oled.setCursor(2, 20);
     oled.println(option);
 
     oled.display();
