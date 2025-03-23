@@ -145,7 +145,7 @@ public:
         }
         break;
       case DMX_ADRESS:
-        decDmxAddress();
+        incDmxAddress();
         break;
       case DMX_MODE:
         selected = (selected + NUM_DMX_MODES - 1) % NUM_DMX_MODES;
