@@ -102,10 +102,9 @@ public:
     curstate_btn_save = digitalRead(BTN_SAVE);
     curstate_btn_mode = digitalRead(BTN_CH_MODE);
 
-    drawScreen();
+    oled.clearDisplay();
 
     if (curstate_btn_up == LOW && laststate_btn_up == HIGH) {
-      oled.clearDisplay();
       btnUpPressed();
     }
     if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
@@ -117,6 +116,8 @@ public:
     if (curstate_btn_mode == LOW && laststate_btn_mode == HIGH) {
       btnModePressed();
     }
+
+    drawScreen();
 
     laststate_btn_up = curstate_btn_up;
     laststate_btn_down = curstate_btn_down;
