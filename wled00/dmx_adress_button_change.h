@@ -16,7 +16,7 @@ const uint32_t BTN_UP = 19;
 const uint32_t BTN_DOWN = 32;
 const uint32_t BTN_SAVE = 17;
 const uint32_t BTN_CH_MODE = 33;
-const uint32_t PRESSED_TIME = 20;
+const uint32_t REPEAT_TIME = 20;
 const uint32_t DMX_MAX = 512;
 
 enum Mode {
@@ -66,6 +66,8 @@ int laststate_btn_save = HIGH;
 int curstate_btn_mode = HIGH;
 int laststate_btn_mode = HIGH;
 
+int repeat_count = 0;
+
 int mode = SELECT_MODE;
 int selected = 1;
 int save_msg = 0;
@@ -107,9 +109,19 @@ public:
 
     if (curstate_btn_up == LOW && laststate_btn_up == HIGH) {
       btnUpPressed();
+    } else if (curstate_btn_up == LOW) {
+      if (repeat_count > REPEAT_TIME) {
+        btnUpPressed();
+      }
+      repeat_count += 1;
     }
     if (curstate_btn_down == LOW && laststate_btn_down == HIGH) {
       btnDownPressed();
+    } else if (curstate_btn_up == LOW) {
+      if (repeat_count > REPEAT_TIME) {
+        btnDownPressed();
+      }
+      repeat_count += 1;
     }
     if (curstate_btn_save == LOW && laststate_btn_save == HIGH) {
       btnSavePressed();
