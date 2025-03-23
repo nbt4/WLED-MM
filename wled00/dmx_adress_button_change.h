@@ -140,6 +140,12 @@ public:
 
     drawScreen();
 
+
+    oled.setTextSize(1);
+    oled.setCursor(40, 45);
+    String s = String() + repeat_count_up;
+    oled.println(s);
+
     if (save_msg > 0) {
       oled.setTextSize(1);
       oled.setCursor(0, 45);
