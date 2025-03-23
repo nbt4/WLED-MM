@@ -123,7 +123,7 @@ public:
 
     if (save_msg > 0) {
       oled.setTextSize(1);
-      oled.setCursor(0, 25);
+      oled.setCursor(0, 35);
       oled.println("saved");
       save_msg -= 1;
     }
@@ -214,6 +214,7 @@ public:
 
   void btnModePressed() {
     mode = SELECT_MODE;
+    selected = 1;
   }
 
   void drawScreen() {
