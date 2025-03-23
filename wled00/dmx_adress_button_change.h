@@ -143,7 +143,7 @@ public:
 
     if (save_msg > 0) {
       oled.setTextSize(1);
-      oled.setCursor(0, 45);
+      oled.setCursor(64, 45);
       oled.println("saved");
       save_msg -= 1;
     }
@@ -267,7 +267,7 @@ public:
 
   void drawOptionScreen(String header, String option) {
     oled.setTextSize(1);
-    oled.setCursor(0, 10);
+    oled.setCursor(0, 0);
     oled.println(header);
 
     oled.setTextSize(2);
@@ -277,7 +277,7 @@ public:
 
   void drawOptionScreenBigCentered(String header, String option) {
     oled.setTextSize(1);
-    oled.setCursor(0, 10);
+    oled.setCursor(0, 0);
     oled.println(header);
 
     oled.setTextSize(3);
