@@ -160,7 +160,8 @@ public:
 
     oled.setTextSize(1);
     oled.setCursor(64, 0);
-    oled.println(temp);
+    oled.print((int)temp);
+    oled.println("°C");
 
     oled.display();
 
