@@ -6,6 +6,8 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -18,6 +20,7 @@ const uint32_t BTN_SAVE = 17;
 const uint32_t BTN_CH_MODE = 33;
 const uint32_t REPEAT_TIME = 20;
 const uint32_t DMX_MAX = 512;
+const uint32_t SENSOR = 14;
 
 enum Mode {
   SELECT_MODE = 0,
@@ -75,6 +78,9 @@ int save_msg = 0;
 
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
+OneWire oneWire(SENSOR_PIN);
+DallasTemperature DS18B20(&oneWire);
+
 class DmxAdressButtonChange : public Usermod {
 private:
 
@@ -84,6 +90,7 @@ public:
 
   void setup() {
     Serial.begin(115200);
+    DS18B20.begin();
 
     if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
       Serial.println("failed to start SSD1306 OLED");
@@ -105,6 +112,9 @@ public:
     curstate_btn_down = digitalRead(BTN_DOWN);
     curstate_btn_save = digitalRead(BTN_SAVE);
     curstate_btn_mode = digitalRead(BTN_CH_MODE);
+    DS18B20.requestTemperatures();
+
+    double temp = DS18B20.getTempCByIndex(0);
 
     oled.clearDisplay();
 
@@ -147,6 +157,10 @@ public:
       oled.println("saved");
       save_msg -= 1;
     }
+
+    oled.setTextSize(1);
+    oled.setCursor(64, 0);
+    oled.println(temp);
 
     oled.display();
 
