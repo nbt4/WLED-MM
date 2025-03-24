@@ -20,7 +20,7 @@ const uint32_t BTN_SAVE = 17;
 const uint32_t BTN_CH_MODE = 33;
 const uint32_t REPEAT_TIME = 20;
 const uint32_t DMX_MAX = 512;
-const uint32_t SENSOR = 14;
+const uint32_t SENSOR_PIN = 14;
 
 enum Mode {
   SELECT_MODE = 0,
@@ -39,7 +39,7 @@ String modeString(int mode) {
     case DMX_MODE:
       return String("DMX Mode");
     case PRESET:
-      return String("Preset");
+      return String("Presets");
     return String("");
   }
   return String("");
@@ -153,13 +153,13 @@ public:
 
     if (save_msg > 0) {
       oled.setTextSize(1);
-      oled.setCursor(64, 45);
+      oled.setCursor(51, 55);
       oled.println("saved");
       save_msg -= 1;
     }
 
     oled.setTextSize(1);
-    oled.setCursor(64, 0);
+    oled.setCursor(105 , 0);
     oled.print((int)temp);
     oled.println("C");
 
